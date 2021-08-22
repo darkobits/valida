@@ -1,4 +1,11 @@
-import { Predicate } from 'ow';
+import { Predicate, BasePredicate } from 'ow';
+
+import type {
+  Constructor,
+  MethodDecorator,
+  MethodType,
+  Prototype
+} from 'etc/types';
 
 
 /**
@@ -17,6 +24,20 @@ export function formatMessage(err: any) {
 }
 
 
-export function isPredicate(value: any): value is Predicate {
+/**
+ * Returns `true` if the provided value is an instance of Predicate.
+ */
+export function isPredicate(value: any): value is BasePredicate {
   return value instanceof Predicate;
+}
+
+
+/**
+ * Decorates the indicated class method using the provided function.
+ */
+export function decorateMethod<C extends Constructor<any>, M extends keyof Prototype<C>>(ctor: C, methodName: M, decorator: MethodDecorator<C, M>) {
+  const originalMethod = ctor.prototype[methodName];
+  ctor.prototype[methodName] = function(this: Prototype<C>, ...args: Parameters<MethodType<C, M>>) {
+    return decorator({ args, method: originalMethod.bind(this), instance: this });
+  };
 }

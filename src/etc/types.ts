@@ -107,3 +107,35 @@ export type WidenLiterals<T> =
   T extends string ? string :
   T extends number ? number :
   T;
+
+
+/**
+ * Represents a generic class constructor.
+ */
+export type Constructor<T> = new (...args: Array<any>) => T;
+
+
+/**
+ * Provided a Constructor type, unwraps its prototype / instance type.
+ */
+export type Prototype<C> = C extends Constructor<infer P> ? P : never;
+
+
+/**
+ * Provided a Constructor type and a method name, returns the type for that
+ * method.
+ */
+export type MethodType<
+  C extends Constructor<any>,
+  K extends keyof Prototype<C>
+> = Prototype<C>[K] extends (this: Prototype<C>, ...args: Array<any>) => any ? Prototype<C>[K] : never;
+
+
+export interface MethodDecoratorContext<C extends Constructor<any>, K extends keyof Prototype<C>> {
+  args: Parameters<MethodType<C, K>>;
+  method: MethodType<C, K>;
+  instance: Prototype<C>;
+}
+
+
+export type MethodDecorator<C extends Constructor<any>, K extends keyof Prototype<C>> = (ctx: MethodDecoratorContext<C, K>) => ReturnType<MethodType<C, K>>;

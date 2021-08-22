@@ -23,15 +23,16 @@ function defaultArrayMerge(target: Array<any>, source: Array<any>) {
 
 export default function createValidator<T extends Record<string, any>>(specFn: SpecFn<T>) {
   // Resolve options.
-  const { name, spec, defaults, arrayMerge: userArrayMerge } = specFn({ ow });
-  const arrayMerge = userArrayMerge ?? defaultArrayMerge;
+  const opts = specFn({ ow });
+  const arrayMerge = opts.arrayMerge ?? defaultArrayMerge;
+  const spec = isPredicate(opts.spec) ? opts.spec : ow.object.partialShape(opts.spec);
 
   try {
     // Validate inputs.
-    // ow(spec, 'spec', ow.object);
+    ow(spec, 'spec', ow.object);
     // Skip validating defaults as ow does not support "deep" partialShape.
-    // ow(defaults, 'defaults', ow.optional.object.partialShape(spec));
-    // ow(arrayMerge, 'arrayMerge', ow.function);
+    // ow(opts.defaults, 'defaults', spec);
+    ow(arrayMerge, 'arrayMerge', ow.function);
   } catch (err) {
     throw new TypeError(`Error creating validator: ${err.message}`);
   }
@@ -41,13 +42,12 @@ export default function createValidator<T extends Record<string, any>>(specFn: S
    * Validates the provided input value against `spec`.
    */
   return (input: any) => {
-    const resolvedInput = defaults ? merge(defaults, input, { arrayMerge }) : input;
-    const resolvedSpec = isPredicate(spec) ? spec : ow.object.partialShape(spec);
-    try {
+    const resolvedInput = opts.defaults ? merge(opts.defaults, input, { arrayMerge }) : input;
 
+    try {
       // We can use partial shape here because `validateKeys` has already
       // checked for extraneous keys.
-      ow(resolvedInput, name ?? 'options', resolvedSpec);
+      ow(resolvedInput, opts.name ?? 'options', spec);
     } catch (err) {
       throw new TypeError(formatMessage(err));
     }

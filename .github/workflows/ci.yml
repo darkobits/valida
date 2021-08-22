@@ -36,9 +36,8 @@ jobs:
       - name: Build Project
         run: npx nr build
 
-      - name: Run Unit Tests
-        run: npx nr test.passWithNoTests
-        # run: npx nr test.coverage
+      - name: Run Unit Test
+        run: npx nr test.coverage
 
-      # - name: Upload Coverage Report
-      #   run: bash <(curl -s https://codecov.io/bash)
+      - name: Upload Coverage Report
+        run: bash <(curl -s https://codecov.io/bash)

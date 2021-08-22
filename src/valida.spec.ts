@@ -1,8 +1,39 @@
+/* eslint-disable import/first, import/order */
+import { expectTypeOf } from 'expect-type';
+import type { BasePredicate } from 'ow';
+import type { DeepPartial } from 'ts-essentials';
+
+import { ShapeFor, DefaultsFor, PredicateFor } from 'etc/types';
+
 import createValidator from './valida';
 
+
+describe('types', () => {
+  describe('PredicateFor / ShapeFor / DefaultsFor', () => {
+    it('should perform complementary', () => {
+      interface MyObjType {
+        name: string;
+        foo: {
+          bar: number;
+        };
+      }
+
+      type Predicate = PredicateFor<MyObjType>;
+      expectTypeOf<Predicate>().toMatchTypeOf<BasePredicate>();
+
+      type Shape = ShapeFor<Predicate>;
+      expectTypeOf<Shape>().toMatchTypeOf<MyObjType>();
+
+      type Defaults = DefaultsFor<Predicate>;
+      expectTypeOf<Defaults>().toMatchTypeOf<DeepPartial<MyObjType>>();
+    });
+  });
+});
+
+
 describe('createValidator', () => {
-  describe('validating object shapes', () => {
-    it('should work', () => {
+  describe('validating objects', () => {
+    it('should throw when bad data is received', () => {
       const validate = createValidator(({ ow }) => ({
         spec: {
           name: ow.string,
@@ -18,7 +49,6 @@ describe('createValidator', () => {
         },
         defaults: {
           age: 1
-
         }
       }));
 
@@ -54,15 +84,15 @@ describe('createValidator', () => {
         validate({
           name: 'Bob',
           favoriteThings: {
-            ossDeveloper: 'Nathan Rajlich'
+            osDeveloper: 'Steve Ballmer'
           }
         });
-      }).toThrow('asdf');
+      }).toThrow('Extraneous property `osDeveloper` in object `favoriteThings` may be a mistake. Did you mean `ossDeveloper`?');
     });
   });
 
   describe('partialShape', () => {
-    it('should work', () => {
+    it('should suggest keys when applicable', () => {
       const validate = createValidator(({ ow }) => ({
         spec: ow.object.partialShape({
           foo: ow.optional.string,
@@ -94,7 +124,7 @@ describe('createValidator', () => {
   });
 
   describe('exactShape', () => {
-    it('should work', () => {
+    it('should suggest keys when applicable', () => {
       const validate = createValidator(({ ow }) => ({
         spec: ow.object.exactShape({
           foo: ow.string,
@@ -121,6 +151,52 @@ describe('createValidator', () => {
           extraKey: 'hello'
         });
       }).toThrow('Did not expect property `extraKey` to exist, got `hello` in object `options`.');
+    });
+  });
+
+  describe('hasAnyKeys', () => {
+    it('should suggest keys when applicable', () => {
+      const validate = createValidator(({ ow }) => ({
+        spec: ow.object.hasAnyKeys('foo', 'bar', 'baz')
+      }));
+
+      // Incorrectly-spelled key with a Levenshtein distance <= 2.
+      expect(() => {
+        validate({
+          fooo: ''
+        });
+      }).toThrow('Property `fooo` in object `options` may be a mistake. Did you mean `foo`?');
+
+      // Extraneous (disallowed) key.
+      expect(() => {
+        validate({});
+      }).toThrow('Expected object `options` to have any key of `["foo","bar","baz"]`');
+    });
+  });
+
+  describe('hasKeys', () => {
+    it('should suggest keys when applicable', () => {
+      const validate = createValidator(({ ow }) => ({
+        spec: ow.object.hasKeys('foo', 'bar', 'baz')
+      }));
+
+      // Incorrectly-spelled key with a Levenshtein distance <= 2.
+      expect(() => {
+        validate({
+          foo: true,
+          bar: true,
+          bazz: true
+        });
+      }).toThrow('Property `bazz` in object `options` may be a mistake. Did you mean `baz`?');
+
+      // Extraneous (disallowed) key.
+      expect(() => {
+        validate({
+          foo: true,
+          bar: true,
+          baz: true
+        });
+      }).not.toThrow();
     });
   });
 });
