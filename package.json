@@ -22,13 +22,14 @@
   },
   "dependencies": {
     "deepmerge": "^4.2.2",
-    "fast-levenshtein": "^2.0.6",
+    "fastest-levenshtein": "^1.0.12",
     "ow": "^0.27.0",
+    "ramda": "^0.27.1",
     "ts-essentials": "^8.0.0"
   },
   "devDependencies": {
     "@darkobits/ts": "^0.8.6",
     "@types/deepmerge": "^2.2.0",
-    "@types/fast-levenshtein": "^0.0.2"
+    "@types/ramda": "^0.27.44"
   }
 }

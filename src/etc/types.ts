@@ -1,9 +1,40 @@
 import type { Options as DeepMergeOptions } from 'deepmerge';
-import type { Ow, Predicate } from 'ow';
+import type { Ow, BasePredicate, Predicate, NumberPredicate } from 'ow';
 import type { DeepPartial } from 'ts-essentials';
 
+
 /**
- * Generic version of the `Shape` type.
+ * Infer the type of a generic predicate.
+ */
+export type Infer<T> = T extends BasePredicate<infer P> ? P : T;
+
+export type Deduce<T> = T extends BasePredicate<infer P> ? BasePredicate<P> : T;
+
+
+export type InferDeep<T> = {
+  [K in keyof T]: T[K] extends BasePredicate<infer P>
+    ? P
+    : T[K] extends object
+      ? InferDeep<T[K]>
+      : T[K];
+};
+
+
+export type DeduceDeep<T> = {
+  [K in keyof T]: T[K] extends BasePredicate<infer P>
+    ? BasePredicate<P>
+    : T[K] extends object
+      ? DeduceDeep<T[K]>
+      : T[K];
+};
+
+type UnwrapMe = NumberPredicate & BasePredicate<number | undefined>;
+
+type Foo = Infer<UnwrapMe>;
+
+
+/**
+ * Generic (imperfect) version of the `Shape` type from `ow`.
  */
 export type ShapeFor<T extends Record<string, any>> = {
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -24,9 +55,14 @@ export interface CreateValidatorContext {
 /**
  * Object returned by a SpecFn.
  */
-export interface CreateValidatorOptions<T> {
-  spec: ShapeFor<T>;
-  defaults?: DeepPartial<T>;
+export interface CreateValidatorOptions<T extends object = object> {
+  /**
+   * Optionally provide a descriptive name for the object being validated. This
+   * will be used as an `ow` label.
+   */
+  name?: string;
+  spec: DeduceDeep<T>;
+  defaults?: InferDeep<T>;
   arrayMerge?: (target: Array<any>, source: Array<any>, options?: DeepMergeOptions) => Array<any>;
 }
 
@@ -34,7 +70,6 @@ export interface CreateValidatorOptions<T> {
 /**
  * Function passed to `createValidator`.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type SpecFn<S extends object = object> = (context: CreateValidatorContext) => CreateValidatorOptions<S>;
 
 
