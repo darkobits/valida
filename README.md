@@ -2,6 +2,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@darkobits/valida"><img src="https://img.shields.io/npm/v/@darkobits/valida.svg?style=flat-square&color=398AFB"></a>
   <a href="https://github.com/darkobits/valida/actions?query=workflow%3Aci"><img src="https://img.shields.io/github/workflow/status/darkobits/valida/ci/master?style=flat-square"></a>
+  <a href="https://app.codecov.io/gh/darkobits/valida/branch/master"><img src="https://img.shields.io/codecov/c/github/darkobits/valida/master?style=flat-square&color=brightgreen"></a>
   <a href="https://depfu.com/github/darkobits/valida"><img src="https://img.shields.io/depfu/darkobits/valida?style=flat-square"></a>
   <a href="https://conventionalcommits.org"><img src="https://img.shields.io/static/v1?label=commits&message=conventional&style=flat-square&color=398AFB"></a>
 </p>
