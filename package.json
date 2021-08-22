@@ -30,6 +30,7 @@
   "devDependencies": {
     "@darkobits/ts": "^0.8.6",
     "@types/deepmerge": "^2.2.0",
-    "@types/ramda": "^0.27.44"
+    "@types/ramda": "^0.27.44",
+    "expect-type": "^0.12.0"
   }
 }
