@@ -10,26 +10,151 @@ import createValidator from './valida';
 
 describe('types', () => {
   describe('PredicateFor / ShapeFor / DefaultsFor', () => {
-    it('should perform complementary', () => {
+    it('should perform inverse operations', () => {
       interface MyObjType {
-        name: string;
-        foo: {
-          bar: number;
+        a: string;
+        b: {
+          b: number;
         };
       }
 
+      // Creating a Predicate of a type should result in a sub-type of
+      // BasePredicate.
       type Predicate = PredicateFor<MyObjType>;
       expectTypeOf<Predicate>().toMatchTypeOf<BasePredicate>();
 
+      // Creating a ShapeFor of a Predicate type should result in the original
+      // shape.
       type Shape = ShapeFor<Predicate>;
       expectTypeOf<Shape>().toMatchTypeOf<MyObjType>();
 
+      // Creating a Defaults of a Predicate type should return a deeply nullable
+      // shape.
       type Defaults = DefaultsFor<Predicate>;
       expectTypeOf<Defaults>().toMatchTypeOf<DeepPartial<MyObjType>>();
     });
   });
+
+  describe('type inference', () => {
+    interface TestObj {
+      a: string;
+      b: number;
+      c?: boolean;
+    }
+
+    it('should infer a shape from the provided spec', () => {
+      const validateWithoutGeneric = createValidator(({ ow }) => {
+        return {
+          spec: {
+            a: ow.string,
+            b: ow.number,
+            c: ow.optional.boolean
+          }
+        };
+      });
+
+      const resultWithoutGeneric = validateWithoutGeneric({
+        a: 'a',
+        b: 1,
+        c: false
+      });
+
+      expectTypeOf<typeof resultWithoutGeneric>().toMatchTypeOf<TestObj>();
+    });
+
+    it('should infer a shape from the provided spec', () => {
+      const validateWithGeneric = createValidator<TestObj>(({ ow }) => {
+        return {
+          spec: {
+            a: ow.string,
+            b: ow.number,
+            c: ow.optional.boolean
+          }
+        };
+      });
+
+      const resultWithGeneric = validateWithGeneric({
+        a: 'a',
+        b: 1,
+        c: false
+      });
+
+      expectTypeOf<typeof resultWithGeneric>().toMatchTypeOf<TestObj>();
+    });
+  });
 });
 
+describe('invalid invocations', () => {
+  describe('not providing a function', () => {
+    it('should throw', () => {
+      expect(() => {
+        // @ts-expect-error
+        createValidator();
+      }).toThrow('Expected `argument` to be of type `Function` but received type `undefined`.');
+    });
+  });
+
+  describe('not returning a value', () => {
+    it('should throw', () => {
+      expect(() => {
+        // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        createValidator(() => {});
+      }).toThrow('Expected `valida options` to be of type `object` but received type `undefined`.');
+    });
+  });
+
+  describe('returning an empty object', () => {
+    it('should throw', () => {
+      expect(() => {
+        // @ts-expect-error
+        createValidator(() => {
+          return {};
+        });
+      }).toThrow('Expected property `spec` to be of type `object` but received type `undefined`.');
+    });
+  });
+
+  describe('returning an invalid object', () => {
+    it('should throw', () => {
+      expect(() => {
+        // @ts-expect-error
+        createValidator(() => {
+          return {
+            a: 1
+          };
+        });
+      }).toThrow('Expected property `spec` to be of type `object` but received type `undefined`.');
+
+      expect(() => {
+        // @ts-expect-error
+        createValidator(() => {
+          return {
+            spec: false
+          };
+        });
+      }).toThrow('Expected property `spec` to be of type `object` but received type `boolean`.');
+
+      expect(() => {
+        createValidator(() => {
+          return {
+            spec: {}
+          };
+        });
+      }).toThrow('Expected property object `spec` to not be empty');
+
+      expect(() => {
+        createValidator(({ ow }) => {
+          return {
+            spec: {
+              a: ow.number
+            }
+          };
+        });
+      }).not.toThrow();
+    });
+  });
+});
 
 describe('createValidator', () => {
   describe('validating objects', () => {
@@ -91,7 +216,7 @@ describe('createValidator', () => {
     });
   });
 
-  describe('partialShape', () => {
+  describe('partialShape errors', () => {
     it('should suggest keys when applicable', () => {
       const validate = createValidator(({ ow }) => ({
         spec: ow.object.partialShape({
@@ -123,7 +248,7 @@ describe('createValidator', () => {
     });
   });
 
-  describe('exactShape', () => {
+  describe('exactShape errors', () => {
     it('should suggest keys when applicable', () => {
       const validate = createValidator(({ ow }) => ({
         spec: ow.object.exactShape({
@@ -154,7 +279,7 @@ describe('createValidator', () => {
     });
   });
 
-  describe('hasAnyKeys', () => {
+  describe('hasAnyKeys errors', () => {
     it('should suggest keys when applicable', () => {
       const validate = createValidator(({ ow }) => ({
         spec: ow.object.hasAnyKeys('foo', 'bar', 'baz')
@@ -174,7 +299,7 @@ describe('createValidator', () => {
     });
   });
 
-  describe('hasKeys', () => {
+  describe('hasKeys errors', () => {
     it('should suggest keys when applicable', () => {
       const validate = createValidator(({ ow }) => ({
         spec: ow.object.hasKeys('foo', 'bar', 'baz')
