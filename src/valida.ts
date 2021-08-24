@@ -4,7 +4,7 @@ import ow from 'ow';
 import { decorateOw } from 'lib/decorate-ow';
 import { formatMessage, isPredicate } from 'lib/utils';
 
-import type { SpecFn, ShapeFor } from 'etc/types';
+import type { SpecFn, DefaultsFor, ValidationResult } from 'etc/types';
 
 
 decorateOw();
@@ -21,7 +21,7 @@ function defaultArrayMerge(target: Array<any>, source: Array<any>) {
 }
 
 
-function getOptions<T>(specFn: SpecFn<T>) {
+function getOptions<T, D>(specFn: SpecFn<T, D>) {
   try {
     ow(specFn, 'argument', ow.function);
 
@@ -49,7 +49,7 @@ function getOptions<T>(specFn: SpecFn<T>) {
 }
 
 
-export default function createValidator<T>(specFn: SpecFn<T>) {
+export default function createValidator<T, D = DefaultsFor<T>>(specFn: SpecFn<T, D>) {
   const { name, spec, defaults, arrayMerge } = getOptions(specFn);
 
   /**
@@ -66,6 +66,6 @@ export default function createValidator<T>(specFn: SpecFn<T>) {
       throw new TypeError(formatMessage(err));
     }
 
-    return resolvedInput as ShapeFor<T>;
+    return resolvedInput as ValidationResult<T, D>;
   };
 }

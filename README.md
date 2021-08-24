@@ -9,8 +9,16 @@
 
 <br />
 
-Options validator using [`ow`](https://github.com/sindresorhus/ow). Suggests corrections for invalid
-keys using Levenshtein distance.
+Options validator using [`ow`](https://github.com/sindresorhus/ow).
+
+# Features
+
+* If used with a type argument, validates the provided `ow` spec against the provided type, ensuring
+  that your runtime type checking stays in sync with your compile-time type-checking.
+* If used without a type argument, ensures that validated values conform to the shape of the provided
+  `ow` spec.
+* Uses Levenshtein distance to suggest correct names for misspelled keys (a-la Jest, Babel).
+* Allows for optional defaults to be specified, which are merged with user input before validation.
 
 ## Install
 

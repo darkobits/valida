@@ -5,10 +5,18 @@ import suggestKey, { ValidateKeysResult } from 'lib/suggest-key';
 import { decorateMethod } from 'lib/utils';
 
 
+let isDecorated = false;
+
+
 /**
- * Atrocious, but necessary.
+ * Ow doesn't provide a way to hook into existing validators to provide
+ * additional functionality.
  */
 export function decorateOw() {
+  if (isDecorated) {
+    return;
+  }
+
   decorateMethod(ObjectPredicate, 'hasKeys', ({ instance, method, args }) => {
     const validKeys = args as Array<string>;
 
@@ -29,8 +37,7 @@ export function decorateOw() {
       }
     });
 
-    // @ts-expect-error
-    return method(...args);
+    return method(...args as Array<string>);
   });
 
   decorateMethod(ObjectPredicate, 'hasAnyKeys', ({ instance, method, args }) => {
@@ -54,8 +61,7 @@ export function decorateOw() {
       }
     });
 
-    // @ts-expect-error
-    return method(...args);
+    return method(...args as Array<string>);
   });
 
   decorateMethod(ObjectPredicate, 'partialShape', ({ instance, method, args }) => {
@@ -94,4 +100,6 @@ export function decorateOw() {
 
     return method(...args);
   });
+
+  isDecorated = true;
 }

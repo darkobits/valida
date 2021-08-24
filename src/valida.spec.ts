@@ -8,6 +8,11 @@ import { ShapeFor, DefaultsFor, PredicateFor } from 'etc/types';
 import createValidator from './valida';
 
 
+interface TestObj {
+  a: string;
+  b?: number;
+}
+
 describe('types', () => {
   describe('PredicateFor / ShapeFor / DefaultsFor', () => {
     it('should perform inverse operations', () => {
@@ -21,17 +26,17 @@ describe('types', () => {
       // Creating a Predicate of a type should result in a sub-type of
       // BasePredicate.
       type Predicate = PredicateFor<MyObjType>;
-      expectTypeOf<Predicate>().toMatchTypeOf<BasePredicate>();
+      expectTypeOf<Predicate>().toEqualTypeOf<BasePredicate<MyObjType>>();
 
       // Creating a ShapeFor of a Predicate type should result in the original
       // shape.
       type Shape = ShapeFor<Predicate>;
-      expectTypeOf<Shape>().toMatchTypeOf<MyObjType>();
+      expectTypeOf<Shape>().toEqualTypeOf<MyObjType>();
 
       // Creating a Defaults of a Predicate type should return a deeply nullable
       // shape.
       type Defaults = DefaultsFor<Predicate>;
-      expectTypeOf<Defaults>().toMatchTypeOf<DeepPartial<MyObjType>>();
+      expectTypeOf<Defaults>().toEqualTypeOf<DeepPartial<MyObjType>>();
     });
   });
 
@@ -42,7 +47,7 @@ describe('types', () => {
       c?: boolean;
     }
 
-    it('should infer a shape from the provided spec', () => {
+    it('should infer a shape from the provided spec and defaults', () => {
       const validateWithoutGeneric = createValidator(({ ow }) => {
         return {
           spec: {
@@ -59,7 +64,13 @@ describe('types', () => {
         c: false
       });
 
-      expectTypeOf<typeof resultWithoutGeneric>().toMatchTypeOf<TestObj>();
+      // Specifically, assert that `c` is not undefined here as it will always
+      // be set by `defaults`.
+      expectTypeOf<typeof resultWithoutGeneric>().toEqualTypeOf<{
+        a: string;
+        b: number;
+        c: boolean;
+      }>();
     });
 
     it('should infer a shape from the provided spec', () => {
@@ -79,7 +90,25 @@ describe('types', () => {
         c: false
       });
 
-      expectTypeOf<typeof resultWithGeneric>().toMatchTypeOf<TestObj>();
+      // @ts-expect-error -- Not working for now.
+      expectTypeOf<typeof resultWithGeneric>().toEqualTypeOf<Required<TestObj>>();
+    });
+  });
+
+  describe('type literal widening', () => {
+    it('should widen type literals', () => {
+      interface TestObj {
+        a: 'a' | 'b' | 'c';
+        b: true | null;
+      }
+
+      createValidator<TestObj>(({ ow }) => ({ spec: {
+        a: ow.string,
+        b: ow.any(ow.boolean.true, ow.null)
+      }}));
+
+      // This test is considered to be passing if the above line has no type
+      // errors.
     });
   });
 });
@@ -136,6 +165,7 @@ describe('invalid invocations', () => {
       }).toThrow('Expected property `spec` to be of type `object` but received type `boolean`.');
 
       expect(() => {
+        // @ts-expect-error
         createValidator(() => {
           return {
             spec: {}
@@ -162,7 +192,7 @@ describe('createValidator', () => {
       const validate = createValidator(({ ow }) => ({
         spec: {
           name: ow.string,
-          age: ow.optional.number,
+          age: ow.number,
           favoriteThings: ow.optional.object.exactShape({
             color: ow.optional.any(ow.string, ow.boolean),
             ossDeveloper: ow.optional.string.oneOf([
@@ -322,6 +352,83 @@ describe('createValidator', () => {
           baz: true
         });
       }).not.toThrow();
+    });
+  });
+
+  describe('typing when using defaults', () => {
+    describe('when a type argument is omitted', () => {
+      it('should make defaults non-nullable', () => {
+        const validate = createValidator(({ ow }) => {
+          return {
+            spec: {
+              a: ow.string,
+              b: ow.optional.number
+            },
+            defaults: {
+              b: 1
+            }
+          };
+        });
+
+        const results = validate({ a: 'yes' });
+
+        // Assert that `b` is not undefined in the result object, as it will
+        // always be set as a default.
+        expectTypeOf<typeof results>().toEqualTypeOf<{
+          a: string;
+          b: number;
+        }>();
+      });
+
+      it('should type returned values correctly', () => {
+        const validate = createValidator(({ ow }) => {
+          return {
+            spec: {
+              a: ow.string,
+              b: ow.optional.number
+            },
+            defaults: {
+              b: 1
+            }
+          };
+        });
+
+        const results = validate({
+          a: 'yes'
+        });
+
+        expectTypeOf<typeof results>().toEqualTypeOf<{
+          a: string;
+          b: number;
+        }>();
+      });
+    });
+
+    describe('when a type argument is used', () => {
+      it('should infer defaults poorly', () => {
+        const validate = createValidator<TestObj>(({ ow }) => {
+          return {
+            spec: {
+              a: ow.string,
+              b: ow.optional.number
+            },
+            defaults: {
+              b: 1
+            }
+          };
+        });
+
+        const results = validate({
+          a: 'yes'
+        });
+
+        // Assert that `b` is still optional here because TypeScript's inference
+        // breaks when we use a type argument to define `T`.
+        expectTypeOf<typeof results>().toEqualTypeOf<{
+          a: string;
+          b?: number;
+        }>();
+      });
     });
   });
 });

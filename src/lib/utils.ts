@@ -35,7 +35,7 @@ export function isPredicate(value: any): value is BasePredicate {
 /**
  * Decorates the indicated class method using the provided function.
  */
-export function decorateMethod<C extends Constructor<any>, M extends keyof Prototype<C>>(ctor: C, methodName: M, decorator: MethodDecorator<C, M>) {
+export function decorateMethod<C extends Constructor<any>, M extends keyof C | keyof Prototype<C>>(ctor: C, methodName: M, decorator: MethodDecorator<C, M>) {
   const originalMethod = ctor.prototype[methodName];
   ctor.prototype[methodName] = function(this: Prototype<C>, ...args: Parameters<MethodType<C, M>>) {
     return decorator({ args, method: originalMethod.bind(this), instance: this });
