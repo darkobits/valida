@@ -9,7 +9,7 @@ import type {
 } from 'ts-essentials';
 
 
-// ----- Decorator Related -----------------------------------------------------
+// ----- Decorator-Related -----------------------------------------------------
 
 /**
  * Optional array merging function. Forwarded to `deepmerge`.
@@ -67,7 +67,7 @@ export interface MethodDecoratorContext<C extends Constructor<any>, K extends ke
 export type MethodDecorator<C extends Constructor<any>, K extends keyof Prototype<C>> = (ctx: MethodDecoratorContext<C, K>) => ReturnType<MethodType<C, K>>;
 
 
-// ----- ow Related ------------------------------------------------------------
+// ----- ow-Related ------------------------------------------------------------
 
 /**
  * Defines an object with zero keys.
@@ -111,29 +111,10 @@ export type PredicateObjectFor<T> = T extends BasePredicate
 /**
   * Deeply unwraps a predicate type or predicate object type into its shape.
   */
-// export type ShapeFor<T> = T extends BasePredicate<infer P>
-//   ? P
-//   : { [K in keyof T]: ShapeFor<T[K]>; };
 export type ShapeFor<T> = T extends BasePredicate<infer P>
   ? P
   : { [K in keyof T]: ShapeFor<T[K]>; };
 
-
-/**
- * Determines the final type to be returned by validators by marking any values
- * supplied in `defaults` as non-nullable in the original spec or provided type
- * argument. If the resulting type exactly matches the original provided type
- * argument, it will be the return type. Otherwise, a new object shape is
- * returned by merging provided defaults onto the spec shape.
- */
-// type WithDefaults<T, D> = Merge<ShapeFor<T>, DeepRequired<D>>;
-// type Merge<A, B> = {
-//   [K in keyof (A & B)]: K extends keyof B
-//     ? B[K]
-//     : K extends keyof A
-//       ? A[K]
-//       : never;
-// };
 
 export type ValidationResult<T, D> = Exact<T, ShapeFor<T>> extends never
   // No type argument was used.
@@ -197,3 +178,9 @@ export interface CreateValidatorContext {
  * Function passed to `createValidator`.
  */
 export type SpecFn<S, D> = (context: CreateValidatorContext) => CreateValidatorOptions<S, D>;
+
+
+/**
+ * Signature of validator functions.
+ */
+export type Validator<T, D> = (value: any) => ValidationResult<T, D>;

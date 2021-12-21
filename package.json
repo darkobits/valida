@@ -23,14 +23,15 @@
   "dependencies": {
     "deepmerge": "^4.2.2",
     "fastest-levenshtein": "^1.0.12",
-    "ow": "^0.27.0",
+    "is-plain-object": "^5.0.0",
+    "ow": "^0.28.1",
     "ramda": "^0.27.1",
-    "ts-essentials": "^8.0.0"
+    "ts-essentials": "^9.0.0"
   },
   "devDependencies": {
-    "@darkobits/ts": "^0.8.6",
+    "@darkobits/ts": "^0.8.9",
     "@types/deepmerge": "^2.2.0",
-    "@types/ramda": "^0.27.44",
-    "expect-type": "^0.12.0"
+    "@types/ramda": "^0.27.60",
+    "expect-type": "^0.13.0"
   }
 }

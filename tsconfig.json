@@ -3,6 +3,8 @@
   "include": ["src"],
   "compilerOptions": {
     "baseUrl": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    // Enabled while dependencies fix their typings for TS 4.5.
+    "skipLibCheck": true
   }
 }

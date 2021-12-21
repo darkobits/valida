@@ -66,6 +66,8 @@ describe('types', () => {
 
       // Specifically, assert that `c` is not undefined here as it will always
       // be set by `defaults`.
+      // @ts-expect-error - Introduced with TS 4.5. May resolve automatically
+      // with future dependency updates.
       expectTypeOf<typeof resultWithoutGeneric>().toEqualTypeOf<{
         a: string;
         b: number;

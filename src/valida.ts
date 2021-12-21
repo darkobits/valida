@@ -1,10 +1,11 @@
 import merge from 'deepmerge';
+import { isPlainObject } from 'is-plain-object';
 import ow from 'ow';
 
 import { decorateOw } from 'lib/decorate-ow';
 import { formatMessage, isPredicate } from 'lib/utils';
 
-import type { SpecFn, DefaultsFor, ValidationResult } from 'etc/types';
+import type { SpecFn, DefaultsFor, ValidationResult, Validator } from 'etc/types';
 
 
 decorateOw();
@@ -21,7 +22,13 @@ function defaultArrayMerge(target: Array<any>, source: Array<any>) {
 }
 
 
-function getOptions<T, D>(specFn: SpecFn<T, D>) {
+/**
+ * @private
+ *
+ * Invokes a user-provided spec function, applies defaults as needed, and
+ * returns a configuration object.
+ */
+function getConfiguration<T, D>(specFn: SpecFn<T, D>) {
   try {
     ow(specFn, 'argument', ow.function);
 
@@ -49,14 +56,17 @@ function getOptions<T, D>(specFn: SpecFn<T, D>) {
 }
 
 
+/**
+ * Accepts a function that should return a spec object. The function will be
+ * passed an object containing a reference to `ow`.
+ */
 export default function createValidator<T, D = DefaultsFor<T>>(specFn: SpecFn<T, D>) {
-  const { name, spec, defaults, arrayMerge } = getOptions(specFn);
+  const { name, spec, defaults, arrayMerge } = getConfiguration(specFn);
 
-  /**
-   * Validates the provided input value against `spec`.
-   */
-  return (input: any) => {
-    const resolvedInput = defaults ? merge(defaults, input, { arrayMerge }) : input;
+  const validator: Validator<T, D> = input => {
+    const resolvedInput: ValidationResult<T, D> = defaults
+      ? merge(defaults, input, { arrayMerge, isMergeableObject: isPlainObject })
+      : input;
 
     try {
       // We can use partial shape here because `validateKeys` has already
@@ -66,6 +76,8 @@ export default function createValidator<T, D = DefaultsFor<T>>(specFn: SpecFn<T,
       throw new TypeError(formatMessage(err));
     }
 
-    return resolvedInput as ValidationResult<T, D>;
+    return resolvedInput;
   };
+
+  return validator;
 }
