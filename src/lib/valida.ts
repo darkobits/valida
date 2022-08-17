@@ -60,7 +60,7 @@ function getConfiguration<T, D>(specFn: SpecFn<T, D>) {
  * Accepts a function that should return a spec object. The function will be
  * passed an object containing a reference to `ow`.
  */
-export default function createValidator<T, D = DefaultsFor<T>>(specFn: SpecFn<T, D>) {
+export function createValidator<T, D = DefaultsFor<T>>(specFn: SpecFn<T, D>) {
   const { name, spec, defaults, arrayMerge } = getConfiguration(specFn);
 
   const validator: Validator<T, D> = input => {

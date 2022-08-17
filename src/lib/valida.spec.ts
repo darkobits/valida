@@ -5,7 +5,7 @@ import type { DeepPartial } from 'ts-essentials';
 
 import { ShapeFor, DefaultsFor, PredicateFor } from 'etc/types';
 
-import createValidator from './valida';
+import { createValidator } from './valida';
 
 
 interface TestObj {

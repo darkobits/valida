@@ -21,7 +21,7 @@
   "files": [
     "dist"
   ],
-  "main": "dist/valida.js",
+  "main": "dist/index.js",
   "scripts": {
     "prepare": "nr prepare",
     "help": "nr --scripts"
