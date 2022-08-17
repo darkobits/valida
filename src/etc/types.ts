@@ -80,11 +80,13 @@ export type EmptyObject<T extends {}> = keyof T extends never ? T : never;
  * is needed to ensure that predicates like ow.string are valid for narrow type
  * literals.
  */
-export type WidenLiterals<T> =
- T extends boolean ? boolean :
- T extends string ? string :
- T extends number ? number :
- T;
+export type WidenLiterals<T> = T extends boolean
+  ? boolean
+  : T extends string
+    ? string
+    : T extends number
+      ? number
+      : T;
 
 
 /**

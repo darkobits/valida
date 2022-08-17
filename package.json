@@ -2,8 +2,14 @@
   "name": "@darkobits/valida",
   "version": "0.1.4",
   "license": "WTFPL",
-  "description": "An options validator.",
+  "description": "Type-aware object validator.",
   "author": "darkobits",
+  "keywords": [
+    "object",
+    "options",
+    "validator",
+    "validate"
+  ],
   "engines": {
     "node": ">=14",
     "npm": ">=7"
@@ -22,16 +28,17 @@
   },
   "dependencies": {
     "deepmerge": "^4.2.2",
-    "fastest-levenshtein": "^1.0.12",
+    "fastest-levenshtein": "^1.0.16",
     "is-plain-object": "^5.0.0",
-    "ow": "^0.28.1",
-    "ramda": "^0.27.1",
-    "ts-essentials": "^9.0.0"
+    "ow": "0.28.1",
+    "ramda": "^0.28.0",
+    "ts-essentials": "^9.2.0"
   },
   "devDependencies": {
-    "@darkobits/ts": "^0.8.9",
+    "@darkobits/eslint-plugin": "^0.2.9",
+    "@darkobits/ts": "^0.11.0-beta.0",
     "@types/deepmerge": "^2.2.0",
-    "@types/ramda": "^0.27.60",
+    "@types/ramda": "^0.28.15",
     "expect-type": "^0.13.0"
   }
 }

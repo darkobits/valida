@@ -23,7 +23,7 @@ Options validator using [`ow`](https://github.com/sindresorhus/ow).
 ## Install
 
 ```
-npm install --save-dev @darkobits/valida
+npm install @darkobits/valida
 ```
 
 ## Use

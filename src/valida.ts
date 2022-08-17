@@ -18,7 +18,7 @@ decorateOw();
  * default behavior is to favor the array value in the incoming object.
  */
 function defaultArrayMerge(target: Array<any>, source: Array<any>) {
-  return source ? source : target;
+  return source ?? target;
 }
 
 
