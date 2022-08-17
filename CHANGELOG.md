@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.5](https://github.com/darkobits/valida/compare/v0.1.4...v0.1.5) (2022-08-17)
+
+
+### 🏗 Chores
+
+* **deps:** Update dependencies. ([bb0ef2c](https://github.com/darkobits/valida/commit/bb0ef2c2dcbdfd3755423141119d28a6447d0991))
+
 ### [0.1.4](https://github.com/darkobits/valida/compare/v0.1.3...v0.1.4) (2021-12-21)
 
 
