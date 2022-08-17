@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.6](https://github.com/darkobits/valida/compare/v0.1.5...v0.1.6) (2022-08-17)
+
+
+### 🏗 Chores
+
+* Export `Ow` type. ([29cb20d](https://github.com/darkobits/valida/commit/29cb20d8f8951e18078def727544fbcd06365407))
+
 ## [0.1.5](https://github.com/darkobits/valida/compare/v0.1.4...v0.1.5) (2022-08-17)
 
 
